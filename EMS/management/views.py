@@ -12,8 +12,8 @@ from users.permissions import *
 from users.backend  import MyAuthentication
 from users.models import employers,employer_profile,companies,company_profile
 from  users.serializer import companySerializer,employerSerializer,company_profileSerializer, employer_profileSerializer,employer_profileSerializer
-from .serializer import SalarySerializer,ProjectSerializer,LeaveSerializer,DepartmentSerializer,AttendanceSerializer, company_department_serializer
-from .models import Attendance, Department_company, Leave, Project,Department,Salary
+from .serializer import PhaseSerializer, QuestionSerializer, ReviewSerializer, SalarySerializer,ProjectSerializer,LeaveSerializer,DepartmentSerializer,AttendanceSerializer, company_department_serializer
+from .models import Attendance, Department_company, Leave, PA_Phases, Project,Department,Salary, phases_question,review
 
 class projects(APIView):
     authentication_classes=[JWTAuthentication]
@@ -301,4 +301,91 @@ class salary1(APIView):
              return Response({'message':'salary paid successfully'})
          return Response(serializer.errors)
          #return Response({'message':data})
+class phaseView(APIView):
+     authentication_classes=[JWTAuthentication]
+     def get(self,request):
+         data=PA_Phases.objects.filter(company_id=request.session['company_id'])
+         serializer=PhaseSerializer(data,many=True)
+         return Response(serializer.data,status.HTTP_200_OK)
+     def post(self,request):
+         serializer=PhaseSerializer(data=request.data)  
+         if serializer.is_valid():
+             serializer.save()
+             return Response({'message':'created successfully'},status.HTTP_201_CREATED)
+         return Response(serializer.errors,status.HTTP_400_BAD_REQUEST)     
+     def put(self,request,id=None):
+         phase=PA_Phases.objects.get(phase_id=id,company_id=request.session['company_id'])
+         serializer=PhaseSerializer(phase,data=request.data)  
+         if serializer.is_valid():
+             serializer.save()
+             return Response({'message':'updated successfully'},status.HTTP_201_CREATED)
+         return Response(serializer.errors,status.HTTP_400_BAD_REQUEST)    
+     def patch(self,request,id=None):
+         phase=PA_Phases.objects.get(phase_id=id,company_id=request.session['company_id'])
+         serializer=PhaseSerializer(phase,data=request.data,partial=True)  
+         if serializer.is_valid():
+             serializer.save()
+             return Response({'message':'partially updated successfully'},status.HTTP_201_CREATED)
+         return Response(serializer.errors,status.HTTP_400_BAD_REQUEST)     
+     def delete(self,request,id=None):
+         phase=PA_Phases.objects.get(phase_id=id,company_id=request.session['company_id'])
+         phase.delete()
+         return Response({'message':'successfully deleted'})           
+           
+class questionsView(APIView):
+    def get(self,request,id):
+        data=phases_question.objects.filter(phase_id=id)        
+        serializer=QuestionSerializer(data,many=True)
+        return Response(serializer.data,status.HTTP_200_OK)
+    def post(self,request):
+        if request.data.get('company_id')==request.session['company_id']:
+            serializer=QuestionSerializer(data=request.data)  
+            if serializer.is_valid():
+                serializer.save()
+                return Response({'message':'created successfully'},status.HTTP_201_CREATED)
+            return Response(serializer.errors,status.HTTP_400_BAD_REQUEST)     
+        return Response(status.HTTP_403_FORBIDDEN)   
+
+    def put(self,request,id=None):
+        if request.data.get('company_id')==request.session['company_id']:
+            questions=phases_question.objects.filter(question_id=id)  
+            serializer=QuestionSerializer(questions,data=request.data,partial=True)  
+            if serializer.is_valid():
+                serializer.save()
+                return Response({'message':'created successfully'},status.HTTP_201_CREATED)
+            return Response(serializer.errors,status.HTTP_400_BAD_REQUEST)     
+        return Response(status.HTTP_403_FORBIDDEN)
+
+    def delete(self,request,id=None):
+        if request.data.get('company_id')==request.session['company_id']:
+            question=phases_question.objects.get(question_id=id)  
+            question.delete()
+            return Response({'message':'deleted'},status.HTTP_204_NO_CONTENT)
+        return Response(status.HTTP_403_FORBIDDEN)
+
+class reviewView(APIView):
+    def get(self,request,id=None):
+        if id is None:
+            data=review.objects.filter(company_id=request.session['company_id'])        
+            serializer=ReviewSerializer(data,many=True)
+            return Response(serializer.data,status.HTTP_200_OK)
+        else:
+            data=review.objects.filter(company_id=request.session['company_id'],emp_id=id)        
+            serializer=ReviewSerializer(data,many=True)
+            return Response(serializer.data,status.HTTP_200_OK)
+
+    def post(self,request,id=None):          
+        if request.data.get('company_id')==request.session['company_id']:
+            serializer=ReviewSerializer(data=request.data)  
+            if serializer.is_valid():
+                serializer.save()
+                return Response({'message':'created successfully'},status.HTTP_201_CREATED)
+            return Response(serializer.errors,status.HTTP_400_BAD_REQUEST)     
+        return Response(status.HTTP_403_FORBIDDEN)   
+
+
+
+
+
+            
 

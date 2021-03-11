@@ -21,11 +21,13 @@ class MyAuthentication():
     def authenticate(request,email=None, password=None):    
         try:
             user= employers.objects.get(email=email,password=password)
+            request.session['emp_id']=user.emp_id
             return user
         except employers.DoesNotExist:
             try:
                 print(" company")
                 user=companies.objects.get(email=email,password=password)
+                request.session['company_id']=user.company_id
                 
                 return user
             except:

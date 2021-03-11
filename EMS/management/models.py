@@ -105,3 +105,35 @@ class Attendance(models.Model):
         ('Absent','Absent')
     )
     status=models.CharField(max_length=10,choices=attend_choice)    
+
+class PA_Phases(models.Model):
+    phase_id=models.AutoField(primary_key=True)
+    company_id=models.ForeignKey(companies,on_delete=models.CASCADE)    
+    phase_name=models.CharField(max_length=300,null=False)
+    def __str__(self) :
+        return self.phase_name
+
+class phases_question(models.Model):
+    question_id=models.AutoField(primary_key=True) 
+    phase_id=models.ForeignKey(PA_Phases,related_name='questions',on_delete=models.CASCADE)
+    question=models.CharField(max_length=600,null=False)
+    def __str__(self) :
+        return self.question
+
+class review(models.Model):
+    review_id=models.AutoField(primary_key=True)
+    weeks=models.DateField(null=False)
+    emp_id=models.ForeignKey(employers,on_delete=models.CASCADE)
+    company_id=models.ForeignKey(companies,on_delete=models.CASCADE)
+    phase_id=models.ForeignKey(PA_Phases,on_delete=models.CASCADE)
+    questions_id=models.ForeignKey(phases_question,on_delete=models.CASCADE)
+    review_choice=(
+        ('Exceptional','Exceptional'),
+        ('Meet Requirements','Meet requirements'),
+        ('Gets By','Gets By'),
+        ('Needs Improvement','Needs Improvement')
+
+    )
+    review=models.CharField(max_length=25,choices=review_choice)
+    #add comments
+    

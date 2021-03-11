@@ -37,5 +37,11 @@ urlpatterns = [
     path('E_dashboard/',views.E_dashboard.as_view(),name='employer_dashboard'),
     path('forget_password/',views.forget_password.as_view(),name='forget_password'),
     path('otp/',views.otp.as_view(),name='otp_verification'),
+    path('phases/',mviews.phaseView.as_view(),name='phase'),
+    path('phases/<int:id>/',mviews.phaseView.as_view(),name='phase_id'),
+    path('questions/',mviews.questionsView.as_view(),name='question'),
+    path('questions/<int:id>/',mviews.questionsView.as_view(),name='question_id'),
+    path('review/',mviews.reviewView.as_view(),name='review'),
+    path('review/<int:id>/',mviews.reviewView.as_view(),name='review_id'),
     
 ]+static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
