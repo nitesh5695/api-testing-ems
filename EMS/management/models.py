@@ -135,5 +135,6 @@ class review(models.Model):
 
     )
     review=models.CharField(max_length=25,choices=review_choice)
-    #add comments
+    comment=models.CharField(max_length=100, null=True,blank=True)
+    reviewed_by=models.CharField(max_length=100)
     

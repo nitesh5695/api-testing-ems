@@ -364,6 +364,7 @@ class questionsView(APIView):
         return Response(status.HTTP_403_FORBIDDEN)
 
 class reviewView(APIView):
+    authentication_classes=[JWTAuthentication]
     def get(self,request,id=None):
         if id is None:
             data=review.objects.filter(company_id=request.session['company_id'])        
@@ -375,14 +376,30 @@ class reviewView(APIView):
             return Response(serializer.data,status.HTTP_200_OK)
 
     def post(self,request,id=None):          
-        if request.data.get('company_id')==request.session['company_id']:
-            serializer=ReviewSerializer(data=request.data)  
+        if request.session['company_id']:
+            serializer=ReviewSerializer(data=request.data,many=True)  
             if serializer.is_valid():
                 serializer.save()
                 return Response({'message':'created successfully'},status.HTTP_201_CREATED)
             return Response(serializer.errors,status.HTTP_400_BAD_REQUEST)     
         return Response(status.HTTP_403_FORBIDDEN)   
 
+class checkview(APIView):
+      def get(self,request,month=None,week=None,id=None):
+            if week=="week1":
+                data=review.objects.filter(emp_id=id,weeks__year='2021',weeks__month=month,weeks__day="07")        
+                serializer=ReviewSerializer(data,many=True)
+            if week=="week2":
+                data=review.objects.filter(emp_id=id,weeks__year='2021',weeks__month=month,weeks__day="14")        
+                serializer=ReviewSerializer(data,many=True)    
+            if week=="week3":
+                data=review.objects.filter(emp_id=id,weeks__year='2021',weeks__month=month,weeks__day="21")        
+                serializer=ReviewSerializer(data,many=True)
+            if week=="week4":
+                data=review.objects.filter(emp_id=id,weeks__year='2021',weeks__month=month,weeks__day="28")        
+                serializer=ReviewSerializer(data,many=True)          
+            return Response(serializer.data,status.HTTP_200_OK)
+    
 
 
 

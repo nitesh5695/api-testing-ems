@@ -28,5 +28,5 @@ class questions(admin.ModelAdmin):
     list_display=['question_id','phase_id','question'] 
 admin.site.register(phases_question,questions)
 class reviews(admin.ModelAdmin):
-    list_display=['review_id','weeks','emp_id','company_id','phase_id','questions_id','review'] 
+    list_display=['review_id','weeks','emp_id','company_id','phase_id','questions_id','review','comment','reviewed_by'] 
 admin.site.register(review,reviews)
