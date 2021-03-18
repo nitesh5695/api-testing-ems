@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Attendance, Department_company, PA_Phases, Project, Salary,Leave,Department,phases_question,PA_Phases,review
+from .models import Attendance, Department_company, PA_Phases, Project, Salary,Leave,Department,phases_question,PA_Phases,review,choices
 
 
 class salary(admin.ModelAdmin):
@@ -30,3 +30,7 @@ admin.site.register(phases_question,questions)
 class reviews(admin.ModelAdmin):
     list_display=['review_id','weeks','emp_id','company_id','phase_id','questions_id','review','comment','reviewed_by'] 
 admin.site.register(review,reviews)
+
+class choice(admin.ModelAdmin):
+    list_display=['choice_id','company_id','choice_name','marks']
+admin.site.register(choices,choice)    

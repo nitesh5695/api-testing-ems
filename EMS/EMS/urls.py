@@ -43,6 +43,8 @@ urlpatterns = [
     path('questions/<int:id>/',mviews.questionsView.as_view(),name='question_id'),
     path('review/',mviews.reviewView.as_view(),name='review'),
     path('review/<int:id>/',mviews.reviewView.as_view(),name='review_id'),
-    path('check/<int:month>/<str:week>/<int:id>/',mviews.checkview.as_view())
+    path('get_review/<str:year>/<int:month>/<str:week>/<int:id>/',mviews.checkview.as_view()),
+    path('choices/',mviews.choiceview.as_view()),
+    path('choices/<int:id>/',mviews.choiceview.as_view()),
     
 ]+static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)

@@ -12,8 +12,10 @@ from users.permissions import *
 from users.backend  import MyAuthentication
 from users.models import employers,employer_profile,companies,company_profile
 from  users.serializer import companySerializer,employerSerializer,company_profileSerializer, employer_profileSerializer,employer_profileSerializer
-from .serializer import PhaseSerializer, QuestionSerializer, ReviewSerializer, SalarySerializer,ProjectSerializer,LeaveSerializer,DepartmentSerializer,AttendanceSerializer, company_department_serializer
-from .models import Attendance, Department_company, Leave, PA_Phases, Project,Department,Salary, phases_question,review
+from .serializer import (PhaseSerializer, QuestionSerializer, ReviewSerializer, SalarySerializer,updatePhaseSerializer,
+ProjectSerializer,LeaveSerializer,DepartmentSerializer,AttendanceSerializer, company_department_serializer,ChoiceSerializer)
+from .models import (Attendance, Department_company, Leave, PA_Phases, 
+Project,Department,Salary, phases_question,review,choices)
 
 class projects(APIView):
     authentication_classes=[JWTAuthentication]
@@ -333,9 +335,10 @@ class phaseView(APIView):
          return Response({'message':'successfully deleted'})           
            
 class questionsView(APIView):
+    authentication_classes=[JWTAuthentication]
     def get(self,request,id):
-        data=phases_question.objects.filter(phase_id=id)        
-        serializer=QuestionSerializer(data,many=True)
+        data=PA_Phases.objects.filter(phase_id=id)        
+        serializer=PhaseSerializer(data,many=True)
         return Response(serializer.data,status.HTTP_200_OK)
     def post(self,request):
         if request.data.get('company_id')==request.session['company_id']:
@@ -346,15 +349,22 @@ class questionsView(APIView):
             return Response(serializer.errors,status.HTTP_400_BAD_REQUEST)     
         return Response(status.HTTP_403_FORBIDDEN)   
 
-    def put(self,request,id=None):
-        if request.data.get('company_id')==request.session['company_id']:
-            questions=phases_question.objects.filter(question_id=id)  
-            serializer=QuestionSerializer(questions,data=request.data,partial=True)  
-            if serializer.is_valid():
-                serializer.save()
-                return Response({'message':'created successfully'},status.HTTP_201_CREATED)
-            return Response(serializer.errors,status.HTTP_400_BAD_REQUEST)     
-        return Response(status.HTTP_403_FORBIDDEN)
+    def patch(self,request):
+      
+     for x in request.data :
+      if int(x['company_id'])==request.session['company_id']:
+        getdata=phases_question.objects.get(question_id=x['question_id'])
+        print(getdata.question_id)
+        serializer=updatePhaseSerializer(getdata,data=x,partial=True)
+        if serializer.is_valid():
+            serializer.save() 
+        else:
+         return Response(serializer.errors,status.HTTP_400_BAD_REQUEST) 
+      else:
+         return Response({'message':'invalid_company_id or not get company_id'},status.HTTP_403_FORBIDDEN)
+     return Response({'message':'updated successfully'},status.HTTP_201_CREATED)
+            
+     
 
     def delete(self,request,id=None):
         if request.data.get('company_id')==request.session['company_id']:
@@ -384,25 +394,79 @@ class reviewView(APIView):
             return Response(serializer.errors,status.HTTP_400_BAD_REQUEST)     
         return Response(status.HTTP_403_FORBIDDEN)   
 
+    def patch(self,request):
+          for x in request.data :
+              getdata=review.objects.get(review_id=x['review_id'],company_id=request.session['company_id'])
+              print(getdata)
+              serializer=ReviewSerializer(getdata,data=x,partial=True)
+              if serializer.is_valid():
+                serializer.save()
+               
+              else:  
+               return Response(serializer.errors,status.HTTP_400_BAD_REQUEST)  
+          return Response({'message':' successfully updated'})
+          
+
+
+
 class checkview(APIView):
-      def get(self,request,month=None,week=None,id=None):
+      def get(self,request,year=None,month=None,week=None,id=None):
             if week=="week1":
-                data=review.objects.filter(emp_id=id,weeks__year='2021',weeks__month=month,weeks__day="07")        
+                data=review.objects.filter(emp_id=id,weeks__year=year,weeks__month=month,weeks__day="07")        
                 serializer=ReviewSerializer(data,many=True)
             if week=="week2":
-                data=review.objects.filter(emp_id=id,weeks__year='2021',weeks__month=month,weeks__day="14")        
+                data=review.objects.filter(emp_id=id,weeks__year=year,weeks__month=month,weeks__day="14")        
                 serializer=ReviewSerializer(data,many=True)    
             if week=="week3":
-                data=review.objects.filter(emp_id=id,weeks__year='2021',weeks__month=month,weeks__day="21")        
+                data=review.objects.filter(emp_id=id,weeks__year=year,weeks__month=month,weeks__day="21")        
                 serializer=ReviewSerializer(data,many=True)
             if week=="week4":
-                data=review.objects.filter(emp_id=id,weeks__year='2021',weeks__month=month,weeks__day="28")        
+                data=review.objects.filter(emp_id=id,weeks__year=year,weeks__month=month,weeks__day="28")        
                 serializer=ReviewSerializer(data,many=True)          
             return Response(serializer.data,status.HTTP_200_OK)
-    
+
+      def patch(self,request,year=None,month=None,week=None,id=None):
+          for x in request.data :
+              getdata=review.objects.get(review_id=x['review_id'])
+              print(getdata)
+              serializer=ReviewSerializer(getdata,data=x,partial=True)
+              if serializer.is_valid():
+                serializer.save()
+               
+              else:  
+               return Response(serializer.errors,status.HTTP_400_BAD_REQUEST)  
+          return Response({'message':'done'})
+        
+class choiceview(APIView):
+    authentication_classes=[JWTAuthentication]
+    def get(self,request):
+        all_choices=choices.objects.filter(company_id=request.session['company_id'])  
+        serializer=ChoiceSerializer(all_choices,many=True) 
+        return Response(serializer.data)
+    def post(self,request):
+        if int(request.data.get('company_id'))==request.session['company_id']:
+          serializer=ChoiceSerializer(data=request.data)
+          if serializer.is_valid():
+              serializer.save()
+              return Response({'message':'added successfully'})
+          return Response(serializer.errors)
+        return Response({'message':'invalid company_id'},status.HTTP_403_FORBIDDEN)     
+    def put(self,request,id=None):
+        if request.data.get('company_id')==request.session['company_id']:
+          choice=choices.objects.get(company_id=request.session['company_id'],choice_id=id) 
+          serializer=ChoiceSerializer(choice,data=request.data)
+          if serializer.is_valid():
+              serializer.save()
+              return Response({'message':'added successfully'})
+          return Response(serializer.errors)
+        return Response({'message':'invalid company_id'},status.status.HTTP_403_FORBIDDEN)     
+
+    def delete(self,request,id=None):
+        choice=choices.objects.get(company_id=request.session['company_id'],choice_id=id) 
+        choice.delete()
+        return Response({'message':'deleted'})
 
 
 
 
-            
 

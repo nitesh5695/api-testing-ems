@@ -2,7 +2,7 @@
 from rest_framework import  serializers
 from drf_writable_nested.serializers import WritableNestedModelSerializer
 from .models import (Department, Leave,Project,Salary,
-Attendance,Department_company,PA_Phases,phases_question,review)
+Attendance,Department_company,PA_Phases,phases_question,review,choices)
 from users.models import employers
 
 class LeaveSerializer(serializers.ModelSerializer):
@@ -53,8 +53,16 @@ class PhaseSerializer(WritableNestedModelSerializer):
         #         phases_question.objects.create(phase_id=phase, **question_data)
         #     return phase
 
-
+class  updatePhaseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=phases_question
+        fields="__all__"
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model=review
         fields="__all__"           
+
+class ChoiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=choices
+        fields="__all__"

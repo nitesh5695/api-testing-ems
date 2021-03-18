@@ -127,14 +127,14 @@ class review(models.Model):
     company_id=models.ForeignKey(companies,on_delete=models.CASCADE)
     phase_id=models.ForeignKey(PA_Phases,on_delete=models.CASCADE)
     questions_id=models.ForeignKey(phases_question,on_delete=models.CASCADE)
-    review_choice=(
-        ('Exceptional','Exceptional'),
-        ('Meet Requirements','Meet requirements'),
-        ('Gets By','Gets By'),
-        ('Needs Improvement','Needs Improvement')
-
-    )
-    review=models.CharField(max_length=25,choices=review_choice)
-    comment=models.CharField(max_length=100, null=True,blank=True)
-    reviewed_by=models.CharField(max_length=100)
     
+    review=models.CharField(max_length=200)
+    comment=models.CharField(max_length=300,default="No comment")
+    marks=models.IntegerField()
+    reviewed_by=models.CharField(max_length=100)
+
+class choices(models.Model):
+    choice_id=models.AutoField(primary_key=True)
+    company_id=models.ForeignKey(companies,on_delete=models.CASCADE)
+    choice_name=models.CharField(max_length=200,unique=True)
+    marks=models.IntegerField()
